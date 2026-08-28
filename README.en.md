@@ -31,6 +31,8 @@ The local workflow includes installation, syntax checks, media preflight, and do
 
 Full automation requires the active AI client to provide local command execution, browser navigation and inspection, interaction, real local-file upload, bounded waiting, local download access, and visible user takeover for login or verification. See [CLIENT-CAPABILITIES.md](CLIENT-CAPABILITIES.md).
 
+Some managed browsers, including certain WorkBuddy integrations, can click an export button but cannot expose the downloaded file to the local command environment, or save it inside an AI-client sandbox. When the browser reports "download failed", use the [download recovery guide](qianwen-transcribe-media/references/download-recovery.md) to classify the failure. When necessary, let the user complete one normal download in the visible browser, then continue validation and archival with the downloaded file's absolute path. A browser download error alone is not proof that Qianwen's export endpoint is permanently unavailable.
+
 On Linux, containers, remote hosts, and WSL require extra path validation: the command environment, browser, and upload tool must all access the same media files.
 
 ## Requirements

@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory = $true)][string]$OutputDirectory,
     [Parameter(Mandatory = $true)][datetime]$NotBefore,
     [string]$DownloadDirectory = (Join-Path $HOME "Downloads"),
+    [string]$DownloadedFile,
     [int]$WaitSeconds = 120
 )
 
@@ -13,7 +14,10 @@ function Emit([object]$Value, [int]$Code) { $Value | ConvertTo-Json -Depth 5; ex
 try {
     $source = Get-Item -LiteralPath $SourceFile -ErrorAction Stop
     if ($source.PSIsContainer) { throw "SourceFile must be a file." }
-    $downloadRoot = (Resolve-Path -LiteralPath $DownloadDirectory).Path
+    $downloadRoot = $null
+    if (-not $DownloadedFile) {
+        $downloadRoot = (Resolve-Path -LiteralPath $DownloadDirectory).Path
+    }
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
     $outputRoot = (Resolve-Path -LiteralPath $OutputDirectory).Path
 } catch {
@@ -22,24 +26,38 @@ try {
 
 $stem = [regex]::Escape($source.BaseName)
 $pattern = "^$stem(?:\s*\(\d+\))?_原文(?:\s*\(\d+\))?\.md$"
-$deadline = (Get-Date).AddSeconds([Math]::Max(0, $WaitSeconds))
-$matches = @()
-do {
-    $matches = @(Get-ChildItem -LiteralPath $downloadRoot -File -Filter "*.md" |
-        Where-Object { $_.Name -match $pattern -and $_.LastWriteTime -ge $NotBefore } |
-        Sort-Object LastWriteTime -Descending)
-    if ($matches.Count -gt 0) { break }
-    Start-Sleep -Seconds 2
-} while ((Get-Date) -lt $deadline)
+if ($DownloadedFile) {
+    try { $download = Get-Item -LiteralPath $DownloadedFile -ErrorAction Stop } catch {
+        Emit @{ status = "missing-download"; source = $source.FullName; downloadedFile = $DownloadedFile } 4
+    }
+    if ($download.PSIsContainer) {
+        Emit @{ status = "invalid-download"; reason = "downloaded-file-is-directory"; downloadedFile = $download.FullName } 7
+    }
+    if ($download.Name -notmatch $pattern) {
+        Emit @{ status = "invalid-download"; reason = "filename-mismatch"; downloadedFile = $download.FullName } 7
+    }
+    if ($download.LastWriteTime -lt $NotBefore) {
+        Emit @{ status = "invalid-download"; reason = "file-predates-export"; downloadedFile = $download.FullName } 7
+    }
+} else {
+    $deadline = (Get-Date).AddSeconds([Math]::Max(0, $WaitSeconds))
+    $matches = @()
+    do {
+        $matches = @(Get-ChildItem -LiteralPath $downloadRoot -File -Filter "*.md" |
+            Where-Object { $_.Name -match $pattern -and $_.LastWriteTime -ge $NotBefore } |
+            Sort-Object LastWriteTime -Descending)
+        if ($matches.Count -gt 0) { break }
+        Start-Sleep -Seconds 2
+    } while ((Get-Date) -lt $deadline)
 
-if ($matches.Count -eq 0) {
-    Emit @{ status = "missing-download"; source = $source.FullName; downloadDirectory = $downloadRoot } 4
+    if ($matches.Count -eq 0) {
+        Emit @{ status = "missing-download"; source = $source.FullName; downloadDirectory = $downloadRoot } 4
+    }
+    if ($matches.Count -gt 1) {
+        Emit @{ status = "ambiguous-download"; candidates = @($matches.FullName) } 5
+    }
+    $download = $matches[0]
 }
-if ($matches.Count -gt 1) {
-    Emit @{ status = "ambiguous-download"; candidates = @($matches.FullName) } 5
-}
-
-$download = $matches[0]
 $destination = Join-Path $outputRoot ($source.BaseName + "_原文.md")
 if (Test-Path -LiteralPath $destination -PathType Leaf) {
     Emit @{ status = "collision"; downloadedFile = $download.FullName; destination = $destination } 6

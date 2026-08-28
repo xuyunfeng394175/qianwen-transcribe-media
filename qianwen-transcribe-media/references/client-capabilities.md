@@ -12,7 +12,7 @@
 | 页面操作 | 能点击、输入、选择选项并重新读取页面 | `blocked` |
 | 本地文件上传 | 能将当前操作系统的绝对路径设置到真实文件输入控件 | 全自动模式 `blocked` |
 | 有界等待 | 能短时等待并再次读取记录状态 | `blocked` |
-| 下载落盘 | 导出的 Markdown 能进入已知本机下载目录 | `blocked` |
+| 下载落盘 | 专用下载工具或一次真实导出证明 Markdown 能进入命令环境可访问的已知目录 | 无证据时 `unverified`；失败时全自动模式 `blocked` |
 | 用户接管 | 有专用接管工具，或能暂停让用户操作可见浏览器 | 登录/验证码出现时必需 |
 
 ## 平台注意事项
@@ -25,7 +25,7 @@
 ## 常见客户端示例
 
 - TraeWork `integrated_browser`：可映射导航、snapshot、点击和等待；必须额外确认当前版本是否提供本地文件上传。
-- WorkBuddy：检查浏览器或 computer-use 工具是否支持本地文件上传与用户接管；存在浏览器工具不等于 `ready`。
+- WorkBuddy：检查浏览器或 computer-use 工具是否支持本地文件上传、下载落盘与用户接管；存在浏览器工具不等于 `ready`。若工具列表没有下载/保存文件能力，不能根据点击成功推断文件会出现在 Windows 用户的 Downloads 目录。
 - Codex、Claude、Cursor 或其他客户端：使用当前实际暴露的浏览器、MCP 或 computer-use 工具，不照搬另一客户端的函数名。
 
 这些只是识别示例。客户端升级、操作系统变化或远程环境变化后必须重新检测。
@@ -41,7 +41,7 @@ pageInspection: ready|blocked
 pageInteraction: ready|blocked
 localFileUpload: ready|blocked
 boundedWait: ready|blocked
-downloadToLocal: ready|blocked
+downloadToLocal: ready|unverified|blocked
 userTakeover: ready|manual|blocked
 overallStatus: ready|blocked
 toolMapping: <每项能力对应的实际工具名>

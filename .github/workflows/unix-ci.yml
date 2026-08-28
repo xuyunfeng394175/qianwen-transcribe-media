@@ -65,3 +65,22 @@ jobs:
           assert result["status"] == "completed"
           assert pathlib.Path(result["finalPath"]).is_file()
           PY
+
+      - name: Test explicit transcript finalization
+        run: |
+
+          source="$RUNNER_TEMP/sample-explicit.mp3"
+          download="$RUNNER_TEMP/sample-explicit_原文.md"
+          output="$RUNNER_TEMP/final-explicit"
+          printf '\001\002\003' > "$source"
+          printf '# Transcript\n' > "$download"
+          not_before="$(python3 -c 'import datetime; print((datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=5)).isoformat())')"
+          result="$(python3 qianwen-transcribe-media/scripts/Finalize-Transcript.py --source-file "$source" --output-directory "$output" --not-before "$not_before" --downloaded-file "$download")"
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          result = json.loads(os.environ["RESULT"])
+          assert result["status"] == "completed"
+          assert pathlib.Path(result["finalPath"]).is_file()
+          PY

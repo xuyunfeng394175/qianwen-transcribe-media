@@ -7,6 +7,8 @@
 ```text
 请使用 qianwen-transcribe-media skill。先自行检测当前操作系统和架构，再选择对应的本地脚本：Windows 使用 PowerShell，macOS/Linux 使用 Bash + Python。阅读 CLIENT-CAPABILITIES.md，将当前会话实际工具映射到每一项必需能力，并验证命令环境、浏览器、上传工具和下载目录是否能访问同一份本机路径。
 
+下载能力必须实测，不能因为能点击“导出”就默认下载落盘成功。若出现“失败 - 下载错误”或找不到新 Markdown，读取 qianwen-transcribe-media/references/download-recovery.md；不要反复导出或重新上传。必要时让我在可见浏览器完成一次下载，然后使用该文件绝对路径继续校验和归档。
+
 先只检测，不上传媒体。对于当前用户范围内、无需提权且已获我明确授权的准备动作，可创建所需目录并安装我已同意的依赖；涉及管理员权限、sudo、系统级修改、软件安装、许可、安全警告、客户端或 MCP 重载、登录千问、扫码或验证码时必须暂停，说明具体动作并等待我决定。每次变更后复检。最后报告 ready、fixable 或 blocked，以及尚未实机验证的客户端能力。
 ```
 

@@ -70,3 +70,24 @@ jobs:
           if ($result.items[0].status -ne "ready") {
             throw "Dummy MP3 was not marked ready: $json"
           }
+
+      - name: Test explicit transcript finalization
+        shell: powershell
+        run: |
+          $source = Join-Path $env:RUNNER_TEMP "sample.mp3"
+          $download = Join-Path $env:RUNNER_TEMP "sample_原文.md"
+          $output = Join-Path $env:RUNNER_TEMP "final"
+          Set-Content -LiteralPath $download -Value "# Transcript" -Encoding UTF8
+          $notBefore = (Get-Date).AddSeconds(-5)
+          $json = & ".\qianwen-transcribe-media\scripts\Finalize-Transcript.ps1" `
+            -SourceFile $source `
+            -OutputDirectory $output `
+            -NotBefore $notBefore `
+            -DownloadedFile $download
+          if ($LASTEXITCODE -ne 0) {
+            throw "Finalization exited with code $LASTEXITCODE"
+          }
+          $result = $json | ConvertFrom-Json
+          if ($result.status -ne "completed" -or -not (Test-Path -LiteralPath $result.finalPath -PathType Leaf)) {
+            throw "Unexpected finalization result: $json"
+          }

@@ -12,7 +12,7 @@
 | 页面操作 | 能点击、输入、选择并重新读取页面 | `blocked` |
 | 本地文件上传 | 能把本机绝对路径设置到真实文件输入控件 | 全自动模式 `blocked` |
 | 有界等待 | 能短时等待并再次读取记录状态 | `blocked` |
-| 下载落盘 | Markdown 能下载到已知本机目录 | `blocked` |
+| 下载落盘 | 专用下载工具或真实导出证明 Markdown 能进入命令环境可访问的已知目录 | 无证据时 `unverified`；失败时全自动模式 `blocked` |
 | 用户接管 | 能暂停并让用户处理登录、扫码或验证码 | 登录时必需 |
 
 ## 跨平台边界
@@ -33,7 +33,7 @@ pageInspection: ready|blocked
 pageInteraction: ready|blocked
 localFileUpload: ready|blocked
 boundedWait: ready|blocked
-downloadToLocal: ready|blocked
+downloadToLocal: ready|unverified|blocked
 userTakeover: ready|manual|blocked
 overallStatus: ready|blocked
 toolMapping: <真实工具名映射>
