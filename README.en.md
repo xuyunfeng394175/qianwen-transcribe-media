@@ -65,6 +65,8 @@ Built-in targets also include `Codex`, `Claude`, `Cursor`, and `Agents`. `Auto` 
 
 After installation, restart or reload the client and send it the first-run prompt from [TASK-TEMPLATES.md](TASK-TEMPLATES.md).
 
+The installable Skill includes optional `agents/openai.yaml` UI metadata for compatible clients. Workflow behavior remains capability-driven and does not require a specific client.
+
 ## Workflow
 
 1. Detect the operating system and select PowerShell or Bash/Python helpers.

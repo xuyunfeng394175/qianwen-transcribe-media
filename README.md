@@ -104,6 +104,7 @@ chmod +x install-skill.sh
 qianwen-transcribe-media/
 |-- qianwen-transcribe-media/
 |   |-- SKILL.md
+|   |-- agents/openai.yaml       # 兼容客户端可选的 UI 元数据
 |   |-- references/client-capabilities.md
 |   `-- scripts/                 # PowerShell、Bash 和 Python 辅助脚本
 |-- install-skill.ps1            # Windows 安装器

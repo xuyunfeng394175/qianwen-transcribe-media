@@ -1,0 +1,4 @@
+interface:
+  display_name: "视频转文字"
+  short_description: "跨平台使用千问将本地音视频导出为 Markdown 原文"
+  default_prompt: "使用 $qianwen-transcribe-media 将本地音视频转成文字，并把经过校验的原文导出为 Markdown。"
