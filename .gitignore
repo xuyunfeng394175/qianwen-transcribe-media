@@ -5,3 +5,5 @@ Desktop.ini
 *.backup-*
 *.tmp
 test-output/
+__pycache__/
+*.py[cod]

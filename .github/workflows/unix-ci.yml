@@ -1,0 +1,67 @@
+name: macOS and Linux CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  local-workflow:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Check shell syntax
+        run: bash -n install-skill.sh qianwen-transcribe-media/scripts/*.sh
+
+      - name: Compile Python helpers
+        run: python3 -m py_compile qianwen-transcribe-media/scripts/*.py
+
+      - name: Test custom installation
+        run: |
+          root="$RUNNER_TEMP/custom-skills"
+          ./install-skill.sh --client Custom --destination-root "$root"
+          test -f "$root/qianwen-transcribe-media/SKILL.md"
+
+      - name: Test media preflight
+        run: |
+          source="$RUNNER_TEMP/sample.mp3"
+          output="$RUNNER_TEMP/transcripts"
+          printf '\001\002\003' > "$source"
+          result="$(python3 qianwen-transcribe-media/scripts/Preflight-Media.py --source-path "$source" --output-directory "$output")"
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["RESULT"])
+          assert result["status"] == "ok"
+          assert len(result["items"]) == 1
+          assert result["items"][0]["status"] == "ready"
+          PY
+
+      - name: Test transcript finalization
+        run: |
+          source="$RUNNER_TEMP/sample.mp3"
+          downloads="$RUNNER_TEMP/downloads"
+          output="$RUNNER_TEMP/final"
+          mkdir -p "$downloads"
+          printf '# Transcript\n' > "$downloads/sample_原文.md"
+          not_before="$(python3 -c 'import datetime; print((datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=5)).isoformat())')"
+          result="$(python3 qianwen-transcribe-media/scripts/Finalize-Transcript.py --source-file "$source" --output-directory "$output" --download-directory "$downloads" --not-before "$not_before" --wait-seconds 0)"
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          result = json.loads(os.environ["RESULT"])
+          assert result["status"] == "completed"
+          assert pathlib.Path(result["finalPath"]).is_file()
+          PY
