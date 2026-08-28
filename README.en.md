@@ -6,6 +6,16 @@ A cross-platform Agent Skill that lets capable AI clients turn local audio and v
 
 The project does not implement a transcription model. It coordinates environment checks, media preflight, browser upload, bounded waiting, export, file placement, and final validation. TraeWork, WorkBuddy, Codex, Claude, Cursor, and other Agent Skills clients can integrate through the capability contract.
 
+## Why This Project Exists
+
+Running local transcription models such as Whisper can continuously consume CPU, GPU, memory, and battery. On lower-powered computers, while editing video, or when processing long recordings, this can cause heat, lag, and slow transcription.
+
+This project moves the expensive transcription work to Qianwen's cloud service. The local computer only handles environment checks, upload, waiting, download, and output validation. This reduces local resource pressure, keeps other applications more responsive, and lets users make legitimate use of free quotas or account benefits already offered by the platform.
+
+In plain terms, a large cloud platform handles the heavy computation while your computer stays usable, and you get more value from benefits already included with your account.
+
+The project does not bypass billing, quotas, authentication, or other service restrictions, and it does not guarantee that the service will remain free. Current quotas, processing limits, and pricing are governed by Qianwen's live service and terms.
+
 > [!IMPORTANT]
 > This is an unofficial community project and is not affiliated with or endorsed by Alibaba, Qianwen, or any AI client mentioned here. Media is uploaded to a third-party cloud service. Do not use it for content that must remain private, and follow Qianwen's terms and applicable law.
 
