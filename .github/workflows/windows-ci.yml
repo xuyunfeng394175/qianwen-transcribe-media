@@ -1,0 +1,72 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  powershell:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Parse PowerShell scripts
+        shell: powershell
+        run: |
+          $errors = @()
+          Get-ChildItem -Path . -Filter *.ps1 -Recurse -File | ForEach-Object {
+            $tokens = $null
+            $parseErrors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$parseErrors
+            )
+            if ($parseErrors.Count -gt 0) {
+              $errors += $parseErrors | ForEach-Object {
+                "{0}: {1}" -f $_.Extent.File, $_.Message
+              }
+            }
+          }
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_ }
+            exit 1
+          }
+
+      - name: Test custom installation
+        shell: powershell
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "custom-skills"
+          .\install-skill.ps1 -Client Custom -DestinationRoot $root
+          $skill = Join-Path $root "qianwen-transcribe-media\SKILL.md"
+          if (-not (Test-Path -LiteralPath $skill -PathType Leaf)) {
+            throw "Installed SKILL.md was not found: $skill"
+          }
+
+      - name: Test media preflight
+        shell: powershell
+        run: |
+          $source = Join-Path $env:RUNNER_TEMP "sample.mp3"
+          $output = Join-Path $env:RUNNER_TEMP "transcripts"
+          [IO.File]::WriteAllBytes($source, [byte[]](1, 2, 3))
+          $json = & ".\qianwen-transcribe-media\scripts\Preflight-Media.ps1" `
+            -SourcePath $source `
+            -OutputDirectory $output
+          if ($LASTEXITCODE -ne 0) {
+            throw "Preflight exited with code $LASTEXITCODE"
+          }
+          $result = $json | ConvertFrom-Json
+          if ($result.status -ne "ok" -or $result.items.Count -ne 1) {
+            throw "Unexpected preflight result: $json"
+          }
+          if ($result.items[0].status -ne "ready") {
+            throw "Dummy MP3 was not marked ready: $json"
+          }

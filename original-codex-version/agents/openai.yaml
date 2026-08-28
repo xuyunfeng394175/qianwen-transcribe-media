@@ -1,0 +1,4 @@
+interface:
+  display_name: "视频转文字"
+  short_description: "使用千问把本地音视频转成带时间戳的 Markdown 原文"
+  default_prompt: "使用 $qianwen-transcribe-media 将这些音视频转成文字，并把原文导出为 Markdown。"
