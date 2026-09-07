@@ -36,6 +36,8 @@
 5. 下载文件并访问浏览器下载目录。
 6. 登录、扫码或验证码时允许用户接管。
 
+如果客户端通过 CDP/远程调试连接 Chrome，还必须使用独立的非默认 user-data-dir。Chrome 不允许把日常默认用户数据目录直接用于这种远程调试场景；这属于浏览器启动约束，不是千问转录失败。首次使用专用 profile 时，用户需要在新窗口扫码登录一次千问；之后可以复用这个专用目录，不影响日常 Chrome。Skill 提供 `Launch-Debug-Chrome.py` 负责跨平台启动和端点检查，但不会读取或复制密码、Cookie、Token 或浏览器 profile 数据。
+
 部分受管浏览器（例如某些 WorkBuddy 集成浏览器）可以完成网页点击，却不能把下载文件交给本地命令环境，或会把文件保存到 AI 客户端沙箱。遇到“失败 - 下载错误”时，先按 [下载故障恢复说明](qianwen-transcribe-media/references/download-recovery.md) 分型；必要时让用户在可见浏览器完成一次下载，再用已下载文件的绝对路径继续校验和归档。不能仅凭浏览器下载记录断言千问导出接口永久不可用。
 
 详细契约见 [CLIENT-CAPABILITIES.md](CLIENT-CAPABILITIES.md)。Linux 若运行在容器、远程主机或 WSL 中，还必须确认命令环境、浏览器与上传工具能访问同一份文件路径。
@@ -48,6 +50,8 @@
 4. 在千问中按完整文件名查重，逐个上传并等待处理。
 5. 仅导出“原文”Markdown，定位本次新下载并移动到指定目录。
 6. 验证结果为非空、UTF-8 可读文件；不覆盖既有转写。
+
+远程调试浏览器的额外步骤是：检测已有可用 CDP，会话不存在时用专用 UDD 启动 Chrome，确认 `debugEndpoint` 和 `userDataDirectory` 后再连接；端口归属不明或专用 UDD 未验证时报告 `blocked`，不退回日常 Chrome。
 
 ## 要求
 
@@ -133,6 +137,7 @@ qianwen-transcribe-media/
 - macOS/Ubuntu：Shell 语法、Python 编译、自定义安装、媒体预检、下载归档。
 - 自动化测试不登录千问、不访问私人账号、不上传媒体。
 - 各 AI 客户端与千问网页的真实端到端流程仍需按客户端版本实机验证。
+- 远程调试 Chrome 的启动规则已覆盖 Windows、macOS 和 Linux；首次专用 profile 登录仍需用户扫码，且各客户端的 CDP 接入和下载落盘能力需要分别实机验证。
 
 ## 适用边界
 

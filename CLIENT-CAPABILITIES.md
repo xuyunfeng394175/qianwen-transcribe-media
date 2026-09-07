@@ -14,6 +14,7 @@
 | 有界等待 | 能短时等待并再次读取记录状态 | `blocked` |
 | 下载落盘 | 专用下载工具或真实导出证明 Markdown 能进入命令环境可访问的已知目录 | 无证据时 `unverified`；失败时全自动模式 `blocked` |
 | 用户接管 | 能暂停并让用户处理登录、扫码或验证码 | 登录时必需 |
+| 远程调试浏览器 | 若客户端通过 CDP 连接 Chrome，能验证专用非默认 UDD 和本机端点 | `blocked`；不允许退回日常 Chrome 默认 UDD |
 
 ## 跨平台边界
 
@@ -21,6 +22,8 @@
 - macOS 的文件访问权限只在系统提示并经用户确认后调整。
 - Linux 容器、远程桌面或宿主机路径映射不明确时，不得假设文件上传和下载可用。
 - AI 客户端、浏览器和命令执行环境必须能访问同一源文件与下载目录。
+- 客户端自带浏览器工具不等于已经具备可用 CDP；只有实际验证过端点和专用 UDD，才可标记远程调试就绪。
+- 专用调试 UDD 首次通常需要用户在新窗口扫码或登录；登录后保留该 UDD，后续可复用，不复制日常 profile。
 
 ## 能力报告
 
@@ -35,6 +38,7 @@ localFileUpload: ready|blocked
 boundedWait: ready|blocked
 downloadToLocal: ready|unverified|blocked
 userTakeover: ready|manual|blocked
+browserDebugging: ready|unverified|blocked
 overallStatus: ready|blocked
 toolMapping: <真实工具名映射>
 ```

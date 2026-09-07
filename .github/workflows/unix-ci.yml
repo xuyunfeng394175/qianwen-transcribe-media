@@ -27,6 +27,32 @@ jobs:
       - name: Compile Python helpers
         run: python3 -m py_compile qianwen-transcribe-media/scripts/*.py
 
+      - name: Validate isolated browser launcher arguments
+        run: |
+          set +e
+          result="$(python3 qianwen-transcribe-media/scripts/Launch-Debug-Chrome.py --user-data-dir "$HOME")"
+          code=$?
+          set -e
+          test "$code" -ne 0
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["RESULT"])
+          assert result["reason"] == "unsafe-user-data-directory"
+          PY
+
+          set +e
+          result="$(python3 qianwen-transcribe-media/scripts/Launch-Debug-Chrome.py --user-data-dir "$RUNNER_TEMP/chrome-debug" --debug-port 80)"
+          code=$?
+          set -e
+          test "$code" -ne 0
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["RESULT"])
+          assert result["reason"] == "invalid-debug-port"
+          PY
+
       - name: Test custom installation
         run: |
           root="$RUNNER_TEMP/custom-skills"

@@ -31,6 +31,8 @@ The local workflow includes installation, syntax checks, media preflight, and do
 
 Full automation requires the active AI client to provide local command execution, browser navigation and inspection, interaction, real local-file upload, bounded waiting, local download access, and visible user takeover for login or verification. See [CLIENT-CAPABILITIES.md](CLIENT-CAPABILITIES.md).
 
+When a client connects to Chrome through CDP or remote debugging, it must use a dedicated non-default `user-data-dir`. Chrome rejects direct remote debugging with the everyday default user data directory; this is a browser launch constraint, not a Qianwen transcription failure. The first use of the dedicated profile requires the user to scan in the new window and log in to Qianwen once. The profile can then be reused without affecting the everyday Chrome profile. `Launch-Debug-Chrome.py` performs cross-platform launch and endpoint checks, but never reads or copies passwords, cookies, tokens, or browser profile data.
+
 Some managed browsers, including certain WorkBuddy integrations, can click an export button but cannot expose the downloaded file to the local command environment, or save it inside an AI-client sandbox. When the browser reports "download failed", use the [download recovery guide](qianwen-transcribe-media/references/download-recovery.md) to classify the failure. When necessary, let the user complete one normal download in the visible browser, then continue validation and archival with the downloaded file's absolute path. A browser download error alone is not proof that Qianwen's export endpoint is permanently unavailable.
 
 On Linux, containers, remote hosts, and WSL require extra path validation: the command environment, browser, and upload tool must all access the same media files.
@@ -88,6 +90,8 @@ The installable Skill includes optional `agents/openai.yaml` UI metadata for com
 5. Export only the original Markdown and locate the fresh download.
 6. Move it to the requested directory and verify a non-empty UTF-8 file.
 
+The remote-debugging path first checks for an existing usable CDP session. If none exists, it starts Chrome with a dedicated UDD, verifies `debugEndpoint` and `userDataDirectory`, and only then connects. An unverified endpoint or a default Chrome UDD is `blocked`; the workflow never falls back to the everyday profile.
+
 ## Safety Boundaries
 
 - Never inspect or store passwords, cookies, tokens, browser storage, or private keys.
@@ -100,6 +104,8 @@ The installable Skill includes optional `agents/openai.yaml` UI metadata for com
 ## Validation Status
 
 The Skill structure is validated. CI covers PowerShell parsing and local Windows checks, plus Bash syntax, Python compilation, installation, preflight, and finalization on macOS and Ubuntu. Live browser integration and Qianwen end-to-end behavior still require testing against each client version.
+
+The isolated remote-debugging launch rules cover Windows, macOS, and Linux. First-use login in the dedicated profile remains a user action, and each client still needs real-device validation for CDP attachment and download exposure.
 
 This project fits connected workflows where cloud upload is acceptable. Prefer a local tool such as Whisper, Buzz, or whisperX for sensitive, offline, or high-volume processing.
 

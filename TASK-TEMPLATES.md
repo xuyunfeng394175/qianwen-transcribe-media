@@ -9,6 +9,8 @@
 
 下载能力必须实测，不能因为能点击“导出”就默认下载落盘成功。若出现“失败 - 下载错误”或找不到新 Markdown，读取 qianwen-transcribe-media/references/download-recovery.md；不要反复导出或重新上传。必要时让我在可见浏览器完成一次下载，然后使用该文件绝对路径继续校验和归档。
 
+如果当前客户端需要通过 CDP/远程调试连接 Chrome，先使用 qianwen-transcribe-media/scripts/Launch-Debug-Chrome.py 启动专用、非默认的 user-data-dir；不要把日常 Chrome 的默认用户数据目录传给远程调试参数。首次打开专用窗口时暂停，让我扫码或登录千问；我确认完成后再继续。保留这个专用目录供后续复用，不复制或读取日常浏览器的密码、Cookie、Token 或 profile 文件。
+
 先只检测，不上传媒体。对于当前用户范围内、无需提权且已获我明确授权的准备动作，可创建所需目录并安装我已同意的依赖；涉及管理员权限、sudo、系统级修改、软件安装、许可、安全警告、客户端或 MCP 重载、登录千问、扫码或验证码时必须暂停，说明具体动作并等待我决定。每次变更后复检。最后报告 ready、fixable 或 blocked，以及尚未实机验证的客户端能力。
 ```
 
@@ -23,6 +25,8 @@ Windows 路径示例：
 设置：语言、翻译和发言人模式保持网页当前默认值。
 
 先检测操作系统、环境和当前 AI 客户端能力，再按 skill 选择对应脚本。完成本地预检、千问精确文件名查重、上传、等待、仅导出原文 Markdown、移动和校验。登录或验证码时让我接管。不要覆盖目标文件，不要静默重试，不要重复提交任务。
+
+若使用远程调试 Chrome，先报告 `browserDebug: ready|unverified|blocked`、CDP 端点和专用 UDD；未验证专用 UDD 时不要上传媒体。
 ```
 
 macOS/Linux 路径示例：
