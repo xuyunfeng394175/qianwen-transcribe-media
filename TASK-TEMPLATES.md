@@ -7,7 +7,7 @@
 ```text
 请使用 qianwen-transcribe-media skill。先自行检测当前操作系统和架构，再选择对应的本地脚本：Windows 使用 PowerShell，macOS/Linux 使用 Bash + Python。阅读 CLIENT-CAPABILITIES.md，将当前会话实际工具映射到每一项必需能力，并验证命令环境、浏览器、上传工具和下载目录是否能访问同一份本机路径。
 
-本任务的唯一转写后端是千问网页端 AI 音视频速读（`transcriptionProvider: qianwen-web-audioread`）。禁止安装、调用或切换到 Whisper、whisperX、Vosk、系统语音识别或其他本地/第三方转写服务。能力不足时必须停止并报告 `blocked`，不得自行改变方案。
+所有使用本模板的 AI 客户端都必须使用唯一转写后端：千问网页端 AI 音视频速读（`transcriptionProvider: qianwen-web-audioread`）。禁止安装、调用或切换到 Whisper、whisperX、Vosk、系统语音识别或其他本地/第三方转写服务。能力不足时必须停止并报告 `blocked`，不得自行改变方案。
 
 下载能力必须实测，不能因为能点击“导出”就默认下载落盘成功。若出现“失败 - 下载错误”或找不到新 Markdown，读取 qianwen-transcribe-media/references/download-recovery.md；不要反复导出或重新上传。必要时让我在可见浏览器完成一次下载，然后使用该文件绝对路径继续校验和归档。
 

@@ -9,7 +9,7 @@ thirdPartyTranscriptionFallback: forbidden
 
 ## 执行规则
 
-1. 本 Skill 只负责千问网页端音视频速读：网页上传、等待、导出“原文” `.md` 和本地校验。
+1. 所有使用本 Skill 的客户端都必须只负责千问网页端音视频速读：网页上传、等待、导出“原文” `.md` 和本地校验。该政策对 WorkBuddy、TraeWork、Codex、Claude、Cursor 以及其他兼容客户端一律适用。
 2. 任何本地语音识别模型、系统语音识别功能或其他云服务都不属于本 Skill 的后端。
 3. 千问不可用时必须保留真实状态并停止：能力不足用 `blocked`，仍在处理用 `pending`，已知失败用 `failed`。
 4. 不得以“帮助完成任务”为理由自动安装或启动本地转写软件，不得静默改变用户选择的后端。

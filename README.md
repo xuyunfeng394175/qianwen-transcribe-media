@@ -7,7 +7,7 @@
 它不实现转录模型，而是组织一条可审计的工作流：环境检测、媒体预检、网页上传、等待处理、导出、移动和结果校验。TraeWork、WorkBuddy、Codex、Claude、Cursor 及其他兼容 Agent Skills 的客户端，都可按能力契约接入。
 
 > [!IMPORTANT]
-> 本项目的转写后端被严格锁定为千问网页端 AI 音视频速读（`transcriptionProvider: qianwen-web-audioread`）。如果 WorkBuddy、TraeWork 或其他客户端无法完成千问链路，必须报告 `blocked`、`pending` 或 `failed`，不得自行安装或调用 Whisper、whisperX、Vosk、系统语音识别或其他本地/第三方服务。FFmpeg/ffprobe 只用于媒体预检和文件校验，不负责转写。可用 `scripts/Validate-Provider.py` 做启动前机器校验。
+> 本项目对所有兼容 Agent Skills 的客户端统一锁定唯一转写后端：千问网页端 AI 音视频速读（`transcriptionProvider: qianwen-web-audioread`）。无论是 WorkBuddy、TraeWork、Codex、Claude、Cursor 还是其他客户端，只要加载本 Skill，就必须遵守同一规则：千问链路无法完成时报告 `blocked`、`pending` 或 `failed`，不得自行安装或调用 Whisper、whisperX、Vosk、系统语音识别或其他本地/第三方服务。FFmpeg/ffprobe 只用于媒体预检和文件校验，不负责转写。可用 `scripts/Validate-Provider.py` 做启动前机器校验。
 
 ## 为什么做这个项目
 

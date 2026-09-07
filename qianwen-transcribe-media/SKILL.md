@@ -9,7 +9,7 @@ description: Check and prepare Windows, macOS, or Linux AI-client environments, 
 
 ## 强制后端锁定
 
-本 Skill 的唯一转写后端是千问网页端的“AI 音视频速读”。本 Skill 中的“转文字”专指：上传到千问、等待千问处理、从千问导出并校验 Markdown。
+所有加载、调用或兼容本 Skill 的 AI 客户端，都必须使用同一个唯一转写后端：千问网页端的“AI 音视频速读”。本 Skill 中的“转文字”专指：上传到千问、等待千问处理、从千问导出并校验 Markdown。该规则与客户端名称、厂商、操作系统、浏览器工具和 MCP 名称无关。
 
 - 不得改用、安装或调用 Whisper、faster-whisper、whisperX、Vosk、SpeechRecognition、macOS Dictation、Windows 本地语音识别或任何其他本地/第三方转写引擎。
 - 不得因为浏览器、下载、网络、权限或客户端能力不足而自动切换到本地转写。必须停止并报告 `blocked`、`pending` 或具体失败原因。
@@ -17,7 +17,7 @@ description: Check and prepare Windows, macOS, or Linux AI-client environments, 
 - 不得把“本地转写结果”冒充“千问原文 Markdown”。只有千问记录成功且本地导出文件通过校验，才能报告 `completed`。
 - 如果用户明确要求本地转写，应结束本 Skill 流程，并说明那是另一个任务，不在本 Skill 内执行。
 
-开始任何媒体处理前，先确认执行计划中的 `transcriptionProvider: qianwen-web-audioread`。缺失、被客户端改写，或计划中出现其他转写引擎时，立即阻断，不上传也不安装本地转写软件。
+开始任何媒体处理前，所有客户端都必须确认执行计划中的 `transcriptionProvider: qianwen-web-audioread`。缺失、被客户端改写，或计划中出现其他转写引擎时，立即阻断，不上传也不安装本地转写软件。
 
 可用本地脚本执行机器可读校验：
 

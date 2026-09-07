@@ -7,7 +7,7 @@ A cross-platform Agent Skill that lets capable AI clients turn local audio and v
 The project does not implement a transcription model. It coordinates environment checks, media preflight, browser upload, bounded waiting, export, file placement, and final validation. TraeWork, WorkBuddy, Codex, Claude, Cursor, and other Agent Skills clients can integrate through the capability contract.
 
 > [!IMPORTANT]
-> The transcription backend is locked to Qianwen web Audio/Video Quick Read (`transcriptionProvider: qianwen-web-audioread`). If a client cannot complete the Qianwen workflow, it must report `blocked`, `pending`, or `failed`; it must not install or invoke Whisper, whisperX, Vosk, system speech recognition, or another local/third-party transcription service. FFmpeg/`ffprobe` are only for media preflight and file validation. Use `scripts/Validate-Provider.py` as the machine-readable startup gate.
+> The transcription backend is locked for every compatible Agent Skills client to Qianwen web Audio/Video Quick Read (`transcriptionProvider: qianwen-web-audioread`). Whether the client is WorkBuddy, TraeWork, Codex, Claude, Cursor, or another client, failure to complete the Qianwen workflow must be reported as `blocked`, `pending`, or `failed`; the client must not install or invoke Whisper, whisperX, Vosk, system speech recognition, or another local/third-party transcription service. FFmpeg/`ffprobe` are only for media preflight and file validation. Use `scripts/Validate-Provider.py` as the machine-readable startup gate.
 
 ## Why This Project Exists
 
