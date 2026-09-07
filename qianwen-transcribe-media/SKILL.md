@@ -91,6 +91,25 @@ python3 "<skill目录>/scripts/Preflight-Media.py" --source-path "<源>" --outpu
 
 上传前还要检查千问“我的记录”中是否已有完整同名记录。已有输出或记录时不自动重复创建。
 
+## 低 Token 模式
+
+单文件和批量任务默认采用低 Token 模式。它减少 AI 客户端的上下文读取、浏览器轮询和过程输出，不减少千问云端额度或计费。
+
+1. 正常任务只读取本文件；只有遇到对应异常才读取 reference。
+2. 脚本直接执行并解析 JSON，不读取脚本源码。
+3. 批量任务开始时只检测一次环境、客户端能力和专用 CDP 浏览器；可用租约直接复用。
+4. 批量任务使用 `scripts/Batch-State.py` 建立 `manifest.json`、`state.json` 和 `events.jsonl`，每次只读取 `claim` 和 `status`；需要只读预览时才使用 `next`。
+5. 浏览器每次只返回当前目标文件的状态，不返回整页 DOM、全量记录或无关内容。
+6. 上传后等待 30 秒；处理中每 60 秒检查；超过 10 分钟后每 120 秒检查；达到上限记录 `pending`。
+7. 每个文件最多一次上传、一次确认和一次最终导出；失败先诊断，不静默重试。
+8. 转写完成后只校验导出文件存在、非空和 UTF-8，不读取完整 Markdown 正文。
+9. 每处理约 50 个文件建立 checkpoint；恢复时只读取状态摘要和下一个文件。
+10. 正常完成只输出一行机器可读结果，异常、人工接管和状态变化才输出详情。
+
+详细协议见 [references/low-token-mode.md](references/low-token-mode.md)。
+
+批量任务的内部状态使用 `ready`、`processing`、`completed`、`skipped`、`failed`、`pending`、`blocked`。只有本地归档脚本确认文件存在、非空且可读后，才记录 `completed`。
+
 ## 浏览器流程
 
 使用当前客户端已验证的浏览器工具。页面变化后重新读取页面，不依赖旧 DOM ref、snapshot ref、行号或坐标。

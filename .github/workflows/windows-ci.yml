@@ -18,6 +18,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
       - name: Parse PowerShell scripts
         shell: powershell
         run: |
@@ -91,3 +96,23 @@ jobs:
           if ($result.status -ne "completed" -or -not (Test-Path -LiteralPath $result.finalPath -PathType Leaf)) {
             throw "Unexpected finalization result: $json"
           }
+
+      - name: Test low-token batch state workflow
+        shell: powershell
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "batch-state"
+          $media = Join-Path $root "media"
+          $output = Join-Path $root "output"
+          $state = Join-Path $root "state"
+          New-Item -ItemType Directory -Path $media, $output, $state -Force | Out-Null
+          [IO.File]::WriteAllBytes((Join-Path $media "b.mp3"), [byte[]](1, 2, 3))
+          [IO.File]::WriteAllBytes((Join-Path $media "a.mp4"), [byte[]](4, 5, 6))
+          Set-Content -LiteralPath (Join-Path $output "a_原文.md") -Value "# Existing" -Encoding UTF8
+          $script = Join-Path (Join-Path (Join-Path $PWD "qianwen-transcribe-media") "scripts") "Batch-State.py"
+          $json = & python $script create --source-path $media --output-directory $output --state-directory $state --job-id ci-job
+          if ($LASTEXITCODE -ne 0) { throw "Batch create failed: $json" }
+          $claimed = & python $script claim --state-directory $state | ConvertFrom-Json
+          if ($claimed.status -ne "processing" -or $claimed.fileName -ne "b.mp3") { throw "Unexpected claim result" }
+          & python $script record --state-directory $state --source-file (Join-Path $media "b.mp3") --status completed --output-path (Join-Path $output "b_原文.md") | Out-Null
+          $summary = & python $script status --state-directory $state | ConvertFrom-Json
+          if ($summary.completed -ne 1 -or $summary.skipped -ne 1 -or $summary.ready -ne 0) { throw "Unexpected summary result" }

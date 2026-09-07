@@ -94,7 +94,6 @@ jobs:
 
       - name: Test explicit transcript finalization
         run: |
-
           source="$RUNNER_TEMP/sample-explicit.mp3"
           download="$RUNNER_TEMP/sample-explicit_原文.md"
           output="$RUNNER_TEMP/final-explicit"
@@ -109,4 +108,32 @@ jobs:
           result = json.loads(os.environ["RESULT"])
           assert result["status"] == "completed"
           assert pathlib.Path(result["finalPath"]).is_file()
+          PY
+
+      - name: Test low-token batch state workflow
+        run: |
+          root="$RUNNER_TEMP/batch-state"
+          mkdir -p "$root/media" "$root/output" "$root/state"
+          printf '\001\002\003' > "$root/media/b.mp3"
+          printf '\004\005\006' > "$root/media/a.mp4"
+          printf '# Existing\n' > "$root/output/a_原文.md"
+          script="qianwen-transcribe-media/scripts/Batch-State.py"
+          python3 "$script" create --source-path "$root/media" --output-directory "$root/output" --state-directory "$root/state" --job-id ci-job
+          result="$(python3 "$script" claim --state-directory "$root/state")"
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["RESULT"])
+          assert result["status"] == "processing"
+          assert result["fileName"] == "b.mp3"
+          PY
+          python3 "$script" record --state-directory "$root/state" --source-file "$root/media/b.mp3" --status completed --output-path "$root/output/b_原文.md"
+          result="$(python3 "$script" status --state-directory "$root/state")"
+          RESULT="$result" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["RESULT"])
+          assert result["completed"] == 1
+          assert result["skipped"] == 1
+          assert result["ready"] == 0
           PY

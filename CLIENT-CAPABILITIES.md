@@ -44,3 +44,15 @@ toolMapping: <真实工具名映射>
 ```
 
 工具未成功调用时标记 `unverified`。具体规则见可安装 Skill 内的 `references/client-capabilities.md`。
+
+## 低 Token 批处理契约
+
+客户端应把重复的文件排序、状态保存和恢复交给 Skill 的本地脚本，而不是把完整清单和历史输出放进对话上下文。批量任务启动时运行一次 `Batch-State.py create`，处理循环只执行 `claim`、浏览器窄状态查询、归档脚本和 `record`；恢复时只执行 `status` 和 `claim`。`claim` 会原子地把一个 `ready` 文件标为 `processing`，避免多个客户端重复处理。
+
+浏览器状态查询只返回以下字段或等价字段：
+
+```json
+{"fileName":"example.mp4","status":"处理中|处理成功|处理失败","hasExportButton":false}
+```
+
+禁止返回整页 DOM、全量历史、无关导航、下载历史、Cookie、Token、Local Storage 或转写正文。环境检测和 CDP 检查有有效租约时复用；租约只保存平台、客户端、端点、专用 UDD 和过期时间，不保存身份信息。

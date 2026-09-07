@@ -53,6 +53,14 @@
 
 远程调试浏览器的额外步骤是：检测已有可用 CDP，会话不存在时用专用 UDD 启动 Chrome，确认 `debugEndpoint` 和 `userDataDirectory` 后再连接；端口归属不明或专用 UDD 未验证时报告 `blocked`，不退回日常 Chrome。
 
+## 低 Token 批量模式
+
+批量处理时可使用 `qianwen-transcribe-media/scripts/Batch-State.py`。它在本地建立 `manifest.json`、`state.json` 和 `events.jsonl`，负责稳定排序、断点恢复、状态计数和重复输出跳过；AI 客户端只需取下一个文件、执行浏览器动作并记录结果。环境检测和 CDP 可通过 4 小时租约复用，浏览器查询只返回当前文件的窄状态，正常过程只输出机器可读单行结果。
+
+这套设计降低的是 AI 客户端 Token 和工具调用成本，不降低千问云端额度，也不保证平台处理速度。它仍保持串行上传、人工登录闸门、下载落盘校验和不覆盖既有结果的边界。
+
+详见 [低 Token 模式说明](qianwen-transcribe-media/references/low-token-mode.md) 和 [任务模板](TASK-TEMPLATES.md)。
+
 ## 要求
 
 所有平台均需要：

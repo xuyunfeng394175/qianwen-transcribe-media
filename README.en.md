@@ -92,6 +92,12 @@ The installable Skill includes optional `agents/openai.yaml` UI metadata for com
 
 The remote-debugging path first checks for an existing usable CDP session. If none exists, it starts Chrome with a dedicated UDD, verifies `debugEndpoint` and `userDataDirectory`, and only then connects. An unverified endpoint or a default Chrome UDD is `blocked`; the workflow never falls back to the everyday profile.
 
+## Low-Token Batch Mode
+
+For batch work, use `qianwen-transcribe-media/scripts/Batch-State.py`. It maintains a local `manifest.json`, `state.json`, and `events.jsonl` for stable ordering, resumability, counters, and duplicate-output skipping. The AI client only claims the next file, performs browser actions, and records the result. Environment and CDP checks can be reused through a four-hour lease, while browser queries return only narrow status for the current file.
+
+This reduces AI-client context and tool-call costs, not Qianwen cloud quota or processing time. Serial uploads, user-controlled login, download verification, and no-overwrite behavior remain in force. See the [low-token mode guide](qianwen-transcribe-media/references/low-token-mode.md) and [task templates](TASK-TEMPLATES.md).
+
 ## Safety Boundaries
 
 - Never inspect or store passwords, cookies, tokens, browser storage, or private keys.
