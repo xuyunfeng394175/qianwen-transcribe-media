@@ -56,6 +56,16 @@ jobs:
             throw "Installed SKILL.md was not found: $skill"
           }
 
+      - name: Enforce Qianwen-only transcription backend
+        shell: powershell
+        run: |
+          $ready = py -3 .\qianwen-transcribe-media\scripts\Validate-Provider.py --provider qianwen-web-audioread | ConvertFrom-Json
+          if ($ready.status -ne "ready" -or $ready.transcriptionProvider -ne "qianwen-web-audioread") { throw "Qianwen provider gate did not pass." }
+          $blocked = py -3 .\qianwen-transcribe-media\scripts\Validate-Provider.py --provider whisper 2>&1
+          if ($LASTEXITCODE -ne 20) { throw "Forbidden provider was not blocked." }
+          $blockedJson = $blocked | ConvertFrom-Json
+          if ($blockedJson.status -ne "blocked" -or $blockedJson.reason -ne "forbidden-local-or-third-party-provider") { throw "Unexpected provider gate result." }
+
       - name: Test media preflight
         shell: powershell
         run: |

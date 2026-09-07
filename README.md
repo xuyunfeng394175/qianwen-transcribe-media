@@ -6,6 +6,9 @@
 
 它不实现转录模型，而是组织一条可审计的工作流：环境检测、媒体预检、网页上传、等待处理、导出、移动和结果校验。TraeWork、WorkBuddy、Codex、Claude、Cursor 及其他兼容 Agent Skills 的客户端，都可按能力契约接入。
 
+> [!IMPORTANT]
+> 本项目的转写后端被严格锁定为千问网页端 AI 音视频速读（`transcriptionProvider: qianwen-web-audioread`）。如果 WorkBuddy、TraeWork 或其他客户端无法完成千问链路，必须报告 `blocked`、`pending` 或 `failed`，不得自行安装或调用 Whisper、whisperX、Vosk、系统语音识别或其他本地/第三方服务。FFmpeg/ffprobe 只用于媒体预检和文件校验，不负责转写。可用 `scripts/Validate-Provider.py` 做启动前机器校验。
+
 ## 为什么做这个项目
 
 在本地运行 Whisper 等转录模型会持续占用 CPU、GPU、内存和电量。电脑配置不高、正在同时剪辑视频，或需要处理长音视频时，容易出现发热、卡顿和转写速度慢的问题。
@@ -73,7 +76,7 @@
 
 - Windows：Windows PowerShell 5.1 或更高版本。
 - macOS/Linux：Bash 和 Python 3.9 或更高版本。
-- FFmpeg/`ffprobe` 可选，用于本地读取媒体时长。
+- FFmpeg/`ffprobe` 可选，仅用于本地读取媒体时长和媒体预检，不用于转写。
 
 环境脚本可以在用户明确授权后安装依赖。macOS 使用 Homebrew；Linux 支持 `apt-get`、`dnf` 或 `pacman`，可能触发 `sudo`。提权、软件安装、许可确认和安全警告不能静默执行。
 
@@ -118,6 +121,7 @@ chmod +x install-skill.sh
 - 不绕过登录、验证码、安全软件、客户端限制或系统策略。
 - 安装软件、管理员权限、`sudo` 和许可确认必须得到用户明确授权。
 - 缺少真实本地文件上传能力时必须报告 `blocked`，不能假装全自动。
+- 千问网页链路失败时必须停止，禁止自动切换到任何本地或第三方转写引擎。
 - 不静默重试上传或导出，避免重复任务和文件映射错误。
 - 不覆盖既有转写；下载移动并验证成功后才算完成。
 - 默认串行处理文件，不承诺批量并发。
@@ -149,7 +153,7 @@ qianwen-transcribe-media/
 
 ## 适用边界
 
-该方案适合联网、允许上传云端、希望获得千问结构化原文的场景。隐私敏感、需要离线、本地批量并发或可控模型推理时，应优先选择 Whisper、Buzz、whisperX 等本地方案。
+该方案适合联网、允许上传云端、希望获得千问结构化原文的场景。本项目不提供离线或本地转写 fallback；隐私敏感或需要离线时，应另行选择 Whisper、Buzz、whisperX 等工具，不要在本 Skill 任务中切换后端。
 
 ## 贡献与许可
 

@@ -6,6 +6,9 @@ A cross-platform Agent Skill that lets capable AI clients turn local audio and v
 
 The project does not implement a transcription model. It coordinates environment checks, media preflight, browser upload, bounded waiting, export, file placement, and final validation. TraeWork, WorkBuddy, Codex, Claude, Cursor, and other Agent Skills clients can integrate through the capability contract.
 
+> [!IMPORTANT]
+> The transcription backend is locked to Qianwen web Audio/Video Quick Read (`transcriptionProvider: qianwen-web-audioread`). If a client cannot complete the Qianwen workflow, it must report `blocked`, `pending`, or `failed`; it must not install or invoke Whisper, whisperX, Vosk, system speech recognition, or another local/third-party transcription service. FFmpeg/`ffprobe` are only for media preflight and file validation. Use `scripts/Validate-Provider.py` as the machine-readable startup gate.
+
 ## Why This Project Exists
 
 Running local transcription models such as Whisper can continuously consume CPU, GPU, memory, and battery. On lower-powered computers, while editing video, or when processing long recordings, this can cause heat, lag, and slow transcription.
@@ -44,7 +47,7 @@ On Linux, containers, remote hosts, and WSL require extra path validation: the c
 - A visible browser or user-takeover mechanism.
 - Windows PowerShell 5.1+ on Windows.
 - Bash and Python 3.9+ on macOS/Linux.
-- Optional FFmpeg/`ffprobe` for local duration validation.
+- Optional FFmpeg/`ffprobe` only for local duration validation and media preflight; they are not transcription engines.
 
 With explicit user approval, setup helpers can install dependencies through Windows Package Manager, Homebrew, `apt-get`, `dnf`, or `pacman`. Elevation, `sudo`, software installation, license acceptance, and security prompts always remain user-controlled.
 
@@ -104,6 +107,7 @@ This reduces AI-client context and tool-call costs, not Qianwen cloud quota or p
 - Never bypass login, CAPTCHA, security software, client restrictions, or system policy.
 - Require explicit approval for software installation, elevation, `sudo`, and license prompts.
 - Report `blocked` when real local-file upload is unavailable.
+- Stop when the Qianwen workflow fails; never switch automatically to a local or third-party transcription engine.
 - Do not silently retry uploads or exports, overwrite transcripts, or claim completion before local verification.
 - Process files serially by default; parallel batch processing is not promised.
 
@@ -113,7 +117,7 @@ The Skill structure is validated. CI covers PowerShell parsing and local Windows
 
 The isolated remote-debugging launch rules cover Windows, macOS, and Linux. First-use login in the dedicated profile remains a user action, and each client still needs real-device validation for CDP attachment and download exposure.
 
-This project fits connected workflows where cloud upload is acceptable. Prefer a local tool such as Whisper, Buzz, or whisperX for sensitive, offline, or high-volume processing.
+This project fits connected workflows where cloud upload is acceptable. It has no local transcription fallback. For sensitive or offline work, use a separate tool such as Whisper, Buzz, or whisperX outside this Skill task.
 
 ## Contributing and License
 

@@ -27,6 +27,30 @@ jobs:
       - name: Compile Python helpers
         run: python3 -m py_compile qianwen-transcribe-media/scripts/*.py
 
+      - name: Enforce Qianwen-only transcription backend
+        run: |
+          ready="$(python3 qianwen-transcribe-media/scripts/Validate-Provider.py --provider qianwen-web-audioread)"
+          READY="$ready" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["READY"])
+          assert result["status"] == "ready"
+          assert result["transcriptionProvider"] == "qianwen-web-audioread"
+          PY
+
+          set +e
+          blocked="$(python3 qianwen-transcribe-media/scripts/Validate-Provider.py --provider whisper)"
+          code=$?
+          set -e
+          test "$code" -eq 20
+          BLOCKED="$blocked" python3 - <<'PY'
+          import json
+          import os
+          result = json.loads(os.environ["BLOCKED"])
+          assert result["status"] == "blocked"
+          assert result["reason"] == "forbidden-local-or-third-party-provider"
+          PY
+
       - name: Validate isolated browser launcher arguments
         run: |
           set +e

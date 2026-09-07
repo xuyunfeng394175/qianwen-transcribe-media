@@ -2,6 +2,10 @@
 
 本 Skill 支持 Windows、macOS 和 Linux，但完整自动化取决于 AI 客户端的实际能力，不取决于客户端名称。
 
+## 后端不可切换
+
+本项目的 `transcriptionProvider` 固定为 `qianwen-web-audioread`。能力检测失败只允许输出 `blocked`、`pending` 或 `failed`，不允许客户端安装或调用 Whisper、whisperX、Vosk、系统语音识别或其他转写服务作为兜底。FFmpeg/ffprobe 仅用于媒体预检，不是转写后端。
+
 ## 必需能力
 
 | 能力 | 验证动作 | 缺失时处理 |

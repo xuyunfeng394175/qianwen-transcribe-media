@@ -7,6 +7,27 @@ description: Check and prepare Windows, macOS, or Linux AI-client environments, 
 
 使用当前 AI 客户端提供的本地命令与浏览器自动化能力，将本地音视频上传到千问 AI 音视频速读，导出“原文”Markdown，并校验最终文件。按实际操作系统选择脚本，不绑定客户端名称或固定工具名。
 
+## 强制后端锁定
+
+本 Skill 的唯一转写后端是千问网页端的“AI 音视频速读”。本 Skill 中的“转文字”专指：上传到千问、等待千问处理、从千问导出并校验 Markdown。
+
+- 不得改用、安装或调用 Whisper、faster-whisper、whisperX、Vosk、SpeechRecognition、macOS Dictation、Windows 本地语音识别或任何其他本地/第三方转写引擎。
+- 不得因为浏览器、下载、网络、权限或客户端能力不足而自动切换到本地转写。必须停止并报告 `blocked`、`pending` 或具体失败原因。
+- 不得把 FFmpeg、ffprobe、Node.js 或其他依赖解释为转写引擎。它们最多用于格式、大小、时长、路径和下载文件校验。
+- 不得把“本地转写结果”冒充“千问原文 Markdown”。只有千问记录成功且本地导出文件通过校验，才能报告 `completed`。
+- 如果用户明确要求本地转写，应结束本 Skill 流程，并说明那是另一个任务，不在本 Skill 内执行。
+
+开始任何媒体处理前，先确认执行计划中的 `transcriptionProvider: qianwen-web-audioread`。缺失、被客户端改写，或计划中出现其他转写引擎时，立即阻断，不上传也不安装本地转写软件。
+
+可用本地脚本执行机器可读校验：
+
+```text
+Windows: py -3 "<skill目录>\scripts\Validate-Provider.py" --provider qianwen-web-audioread
+macOS/Linux: python3 "<skill目录>/scripts/Validate-Provider.py" --provider qianwen-web-audioread
+```
+
+只有 JSON `status = ready` 才能进入媒体预检和浏览器流程；其他结果一律停止。
+
 ## 平台路由与环境检测
 
 先识别操作系统，再运行对应检测。不要在 macOS/Linux 运行 PowerShell 版，也不要在 Windows 假设 Bash 可用。
